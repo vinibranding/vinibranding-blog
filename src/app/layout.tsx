@@ -22,6 +22,11 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Vini's Branding Lab",
   description: "Vini's Branding Lab - 퍼스널 브랜딩 및 커리어 컨설팅",
+  alternates: {
+    types: {
+      'application/rss+xml': 'https://vinibranding.com/rss.xml',
+    },
+  },
 };
 
 export default function RootLayout({
