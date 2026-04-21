@@ -27,6 +27,9 @@ export const metadata: Metadata = {
       'application/rss+xml': 'https://vinibranding.com/rss.xml',
     },
   },
+  verification: {
+    google: 'gHmBQyZ4xYzHqYyToTisbh9lTZhd31z7sFlpmNwYXVU',
+  },
 };
 
 export default function RootLayout({
