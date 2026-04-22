@@ -47,7 +47,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
           <img
             src={post.imageUrl}
             alt={post.title}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-top"
           />
         </div>
         {post.imageCaption && (
