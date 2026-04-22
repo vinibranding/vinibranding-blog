@@ -1,34 +1,23 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { getPostData, getSortedPostsData } from '@/lib/posts';
 
-// NOTE: In a real app, this should match your MOCK_POSTS in page.tsx or come from a database.
-const MOCK_POSTS = {
-  "1": {
-    title: "2026년 하반기 대기업 공채 트렌드 완벽 분석",
-    content: `
-      <p>채용 시장이 빠르게 변화하고 있습니다. 단순한 스펙 나열보다는 실질적인 직무 역량을 증명하는 것이 더욱 중요해졌습니다.</p>
-      <h2>1. 직무 역량 중심의 자소서</h2>
-      <p>경험을 나열하는 대신, 해당 경험을 통해 얻은 인사이트와 직무 관련성을 구체적으로 작성해야 합니다.</p>
-      <h2>2. AI 면접 대비</h2>
-      <p>AI 면접의 비중이 늘어나고 있습니다. 일관성 있는 답변과 긍정적인 표정을 유지하는 훈련이 필요합니다.</p>
-    `,
-    category: "취업정보",
-    imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1200&auto=format&fit=crop",
-    date: "2026.04.20",
-    author: "Vini"
-  }
-};
+export async function generateStaticParams() {
+  const posts = getSortedPostsData();
+  return posts.map((post) => ({
+    id: post.id,
+  }));
+}
 
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  // Get post data or use a fallback if not found in our simple mock
-  const post = MOCK_POSTS[resolvedParams.id as keyof typeof MOCK_POSTS] || {
-    title: "상세 내용을 준비 중입니다.",
-    content: "<p>요청하신 게시글의 상세 내용을 현재 준비 중입니다.</p>",
-    category: "안내",
-    imageUrl: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1200&auto=format&fit=crop",
-    date: "2026.04.21",
-    author: "Admin"
-  };
+  
+  let post;
+  try {
+    post = await getPostData(resolvedParams.id);
+  } catch (e) {
+    notFound();
+  }
 
   return (
     <article className="container mx-auto px-4 py-12 sm:px-6 lg:px-8 max-w-4xl">
@@ -63,7 +52,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
 
       <div 
         className="prose prose-lg prose-pink mx-auto mb-16"
-        dangerouslySetInnerHTML={{ __html: post.content }}
+        dangerouslySetInnerHTML={{ __html: post.contentHtml || "" }}
       />
 
       <div className="mt-12 rounded-2xl bg-gray-50 border border-gray-100 p-6 flex flex-col items-center justify-center min-h-[250px]">
