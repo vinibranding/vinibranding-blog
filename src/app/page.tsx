@@ -51,12 +51,12 @@ export default function Home() {
           <div className="space-y-4">
             <a href="#" className="group flex flex-col justify-center rounded-2xl border border-rose-200 bg-rose-50/40 p-5 text-center transition-all hover:bg-rose-50 hover:border-rose-300 hover:shadow-sm">
               <span className="text-xs font-bold text-rose-500 tracking-widest mb-1.5 opacity-80 group-hover:opacity-100">PERSONAL BRANDING</span>
-              <span className="text-lg font-bold text-gray-800 group-hover:text-gray-900">더빛날랩: 컨설팅 상담</span>
+              <span className="text-lg font-bold text-gray-800 group-hover:text-gray-900">[1:1 컨설팅 신청]</span>
             </a>
             
             <a href="#" className="group flex flex-col justify-center rounded-2xl border border-rose-200 bg-rose-50/40 p-5 text-center transition-all hover:bg-rose-50 hover:border-rose-300 hover:shadow-sm">
               <span className="text-xs font-bold text-rose-500 tracking-widest mb-1.5 opacity-80 group-hover:opacity-100">CORPORATE LECTURE</span>
-              <span className="text-lg font-bold text-gray-800 group-hover:text-gray-900">이룸HRD: 강의 문의</span>
+              <span className="text-lg font-bold text-gray-800 group-hover:text-gray-900">[출강 및 협업 제안]</span>
             </a>
           </div>
 

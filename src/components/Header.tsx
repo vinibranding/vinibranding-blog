@@ -1,10 +1,10 @@
 import Link from 'next/link';
 
 const categories = [
-  { name: '브랜딩 인사이트', href: '/category/branding-insight' },
-  { name: '커리어 이미지', href: '/category/career-image' },
-  { name: '교육 소식', href: '/category/education-news' },
-  { name: '강의 문의', href: '/contact' },
+  { name: 'Branding Insight', href: '/category/branding-insight' },
+  { name: 'Career Design', href: '/category/career-image' },
+  { name: 'Interview Master', href: '/category/education-news' },
+  { name: 'Contact', href: '/contact' },
 ];
 
 export default function Header() {
