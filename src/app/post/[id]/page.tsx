@@ -1,9 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getPostData, getSortedPostsData } from '@/lib/posts';
+import { getSanityPost, getSanityPosts } from '@/lib/sanity';
+import { PortableText } from '@portabletext/react';
+
+export const revalidate = 60;
 
 export async function generateStaticParams() {
-  const posts = getSortedPostsData();
+  const posts = await getSanityPosts();
   return posts.map((post) => ({
     id: post.id,
   }));
@@ -12,10 +15,8 @@ export async function generateStaticParams() {
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   
-  let post;
-  try {
-    post = await getPostData(resolvedParams.id);
-  } catch (e) {
+  const post = await getSanityPost(resolvedParams.id);
+  if (!post) {
     notFound();
   }
 
@@ -57,10 +58,15 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         )}
       </div>
 
-      <div 
-        className="prose prose-lg prose-pink mx-auto mb-16"
-        dangerouslySetInnerHTML={{ __html: post.contentHtml || "" }}
-      />
+      <div className="prose prose-lg prose-pink mx-auto mb-16">
+        {post.content ? (
+          <PortableText value={post.content} />
+        ) : post.contentHtml ? (
+          <div dangerouslySetInnerHTML={{ __html: post.contentHtml as string }} />
+        ) : (
+          <p>내용이 없습니다.</p>
+        )}
+      </div>
 
       {/* 구글 애드센스 - 승인 전까지 임시 숨김 */}
       <div className="hidden mt-12 rounded-2xl bg-gray-50 border border-gray-100 p-6 flex flex-col items-center justify-center min-h-[250px]">
