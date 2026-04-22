@@ -1,6 +1,14 @@
-import { groq } from 'next-sanity'
-import { client } from '../sanity/lib/client'
+import { groq, createClient } from 'next-sanity'
+import { apiVersion, dataset, projectId, useCdn } from '../sanity/env'
 import { getSortedPostsData, getPostData } from './posts'
+
+const serverClient = createClient({
+  apiVersion,
+  dataset,
+  projectId,
+  useCdn,
+  token: process.env.SANITY_API_WRITE_TOKEN || 'skWHc2ZVm6XK2i8PeSSfWBDta7gqsERGy7boP2RofkULTAIXv3qqubOcoT681HjFT1DHVQ3ehzUjKXjWzpGm2g6q26qtLcZqXcb0WueEu2Vl5eFPn8PDizwrFoL2UZRJHqT56b2eKNvO2oRqe9mpGh4oQ98AuTx0qt9wyjKrBkLmFvQ3czNX'
+})
 
 export interface SanityPost {
   id: string
@@ -17,7 +25,7 @@ export interface SanityPost {
 
 export async function getSanityPosts(): Promise<SanityPost[]> {
   try {
-    const posts = await client.fetch(groq`*[_type == "post"] | order(publishedAt desc) {
+    const posts = await serverClient.fetch(groq`*[_type == "post"] | order(publishedAt desc) {
       "id": slug.current,
       title,
       excerpt,
@@ -26,7 +34,7 @@ export async function getSanityPosts(): Promise<SanityPost[]> {
       imageCaption,
       "date": publishedAt,
       author
-    }`, {}, { next: { revalidate: 60 } })
+    }`)
     if (posts && posts.length > 0) return posts
   } catch (e) {
     console.error("Sanity fetch error:", e)
@@ -42,7 +50,7 @@ export async function getSanityPosts(): Promise<SanityPost[]> {
 
 export async function getSanityPost(slug: string): Promise<SanityPost | null> {
   try {
-    const post = await client.fetch(groq`*[_type == "post" && slug.current == $slug][0] {
+    const post = await serverClient.fetch(groq`*[_type == "post" && slug.current == $slug][0] {
       "id": slug.current,
       title,
       excerpt,
@@ -52,7 +60,7 @@ export async function getSanityPost(slug: string): Promise<SanityPost | null> {
       "date": publishedAt,
       author,
       content
-    }`, { slug }, { next: { revalidate: 60 } })
+    }`, { slug })
     if (post) return post
   } catch (e) {
     console.error("Sanity fetch error:", e)
