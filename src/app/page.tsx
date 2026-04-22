@@ -60,8 +60,8 @@ export default function Home() {
             </a>
           </div>
 
-          {/* 3. 구글 애드센스 (버튼 아래 배치) */}
-          <div className="sticky top-28 rounded-2xl bg-gray-50 border border-gray-200 p-8 flex flex-col items-center justify-center min-h-[400px]">
+          {/* 3. 구글 애드센스 (버튼 아래 배치) - 임시 숨김 처리 */}
+          <div className="hidden sticky top-28 rounded-2xl bg-gray-50 border border-gray-200 p-8 flex flex-col items-center justify-center min-h-[400px]">
             <div className="text-center">
               <span className="inline-flex items-center justify-center w-12 h-12 bg-gray-200 rounded-full mb-4 text-gray-400">
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>

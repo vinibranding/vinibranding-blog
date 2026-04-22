@@ -62,7 +62,8 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         dangerouslySetInnerHTML={{ __html: post.contentHtml || "" }}
       />
 
-      <div className="mt-12 rounded-2xl bg-gray-50 border border-gray-100 p-6 flex flex-col items-center justify-center min-h-[250px]">
+      {/* 구글 애드센스 - 승인 전까지 임시 숨김 */}
+      <div className="hidden mt-12 rounded-2xl bg-gray-50 border border-gray-100 p-6 flex flex-col items-center justify-center min-h-[250px]">
         <p className="text-sm font-medium text-gray-400 text-center">
           Google AdSense<br />(Post Bottom Advertisement)
         </p>
