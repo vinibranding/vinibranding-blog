@@ -42,12 +42,19 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         </div>
       </header>
 
-      <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-gray-100 mb-12 shadow-lg">
-        <img
-          src={post.imageUrl}
-          alt={post.title}
-          className="h-full w-full object-cover"
-        />
+      <div className="mb-12">
+        <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-gray-100 shadow-lg">
+          <img
+            src={post.imageUrl}
+            alt={post.title}
+            className="h-full w-full object-cover"
+          />
+        </div>
+        {post.imageCaption && (
+          <p className="mt-4 text-center text-sm font-medium text-gray-500 italic">
+            {post.imageCaption}
+          </p>
+        )}
       </div>
 
       <div 

@@ -13,6 +13,7 @@ export interface PostData {
   excerpt: string;
   category: string;
   imageUrl: string;
+  imageCaption?: string;
   author: string;
   contentHtml?: string;
 }
@@ -39,6 +40,7 @@ export function getSortedPostsData(): PostData[] {
           excerpt: string;
           category: string;
           imageUrl: string;
+          imageCaption?: string;
           author: string;
         }),
       };
@@ -72,6 +74,7 @@ export async function getPostData(id: string): Promise<PostData> {
       excerpt: string;
       category: string;
       imageUrl: string;
+      imageCaption?: string;
       author: string;
     }),
   };

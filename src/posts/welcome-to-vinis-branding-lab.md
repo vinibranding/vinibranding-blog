@@ -2,7 +2,8 @@
 title: "[인사말] 안녕하세요! Vini's Branding Lab, 비니입니다."
 excerpt: "사람의 고유한 가치를 발굴하고 매력적인 브랜드로 디자인하는 퍼스널 브랜딩 전문가 '비니'입니다."
 category: "브랜딩 인사이트"
-imageUrl: "https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?q=80&w=1200&auto=format&fit=crop"
+imageUrl: "/images/vini-branding-lab-director.jpg"
+imageCaption: "Vini's Branding Lab을 이끄는 디렉터 비니"
 date: "2026.04.22"
 author: "비니"
 ---
