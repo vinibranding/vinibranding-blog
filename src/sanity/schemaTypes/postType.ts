@@ -59,6 +59,25 @@ export const postType = defineType({
       type: 'datetime',
     }),
     defineField({
+      name: 'scheduledAt',
+      title: 'Scheduled Publish Date',
+      type: 'datetime',
+      description: '예약 발행 날짜/시간 (비워두면 즉시 발행)',
+    }),
+    defineField({
+      name: 'status',
+      title: 'Status',
+      type: 'string',
+      initialValue: 'published',
+      options: {
+        list: [
+          { title: '발행됨', value: 'published' },
+          { title: '초안', value: 'draft' },
+          { title: '예약발행', value: 'scheduled' },
+        ],
+      },
+    }),
+    defineField({
       name: 'author',
       title: 'Author',
       type: 'string',
