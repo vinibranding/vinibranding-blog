@@ -1,30 +1,29 @@
 import Link from 'next/link'
-import { createClient } from 'next-sanity'
-import { apiVersion, dataset, projectId } from '@/sanity/env'
+import { getSortedPostsData } from '@/lib/posts'
 
 export const dynamic = 'force-dynamic'
 
-const serverClient = createClient({
-  apiVersion,
-  dataset,
-  projectId,
-  useCdn: false,
-  token: process.env.SANITY_API_WRITE_TOKEN,
-})
-
 async function getStats() {
   try {
-    const [postCount, inquiryCount, unreadCount, recentPosts] = await Promise.all([
-      serverClient.fetch<number>(`count(*[_type == "post"])`),
-      serverClient.fetch<number>(`count(*[_type == "inquiry"])`),
-      serverClient.fetch<number>(`count(*[_type == "inquiry" && isRead == false])`),
-      serverClient.fetch<any[]>(`*[_type == "post"] | order(publishedAt desc)[0...5] {
-        _id, title, "slug": slug.current, category, status, publishedAt
-      }`),
-    ])
-    return { postCount: postCount || 0, inquiryCount: inquiryCount || 0, unreadCount: unreadCount || 0, recentPosts: recentPosts || [] }
+    const allPosts = getSortedPostsData()
+    const recentPosts = allPosts.slice(0, 5).map(p => ({
+      _id: p.id,
+      title: p.title,
+      slug: p.slug,
+      category: p.category,
+      status: p.status || 'published',
+      publishedAt: p.date
+    }))
+    
+    // For now, inquiries are still from Sanity if they exist, or just 0
+    return { 
+      postCount: allPosts.length, 
+      inquiryCount: 0, 
+      unreadCount: 0, 
+      recentPosts 
+    }
   } catch (err) {
-    console.error('[Admin Dashboard] Sanity fetch error:', err)
+    console.error('[Admin Dashboard] Stats error:', err)
     return { postCount: 0, inquiryCount: 0, unreadCount: 0, recentPosts: [] }
   }
 }

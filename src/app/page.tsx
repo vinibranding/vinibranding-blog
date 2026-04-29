@@ -1,10 +1,10 @@
 import PostCard from "@/components/PostCard";
-import { getSanityPosts } from "@/lib/sanity";
+import { getSortedPostsData } from "@/lib/posts";
 
 export const revalidate = 60;
 
 export default async function Home() {
-  const posts = await getSanityPosts();
+  const posts = getSortedPostsData();
 
   return (
     <div className="w-full pb-20">

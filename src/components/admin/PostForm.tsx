@@ -7,9 +7,10 @@ import dynamic from 'next/dynamic'
 const TipTapEditor = dynamic(() => import('@/components/admin/TipTapEditor'), { ssr: false })
 
 const categories = [
-  { label: '브랜딩 인사이트', value: '브랜딩 인사이트' },
-  { label: '커리어 디자인', value: '커리어 디자인' },
-  { label: '인터뷰 마스터', value: '인터뷰 마스터' },
+  { label: '브랜딩', value: '브랜딩' },
+  { label: '인사이트', value: '인사이트' },
+  { label: '커리어', value: '커리어' },
+  { label: '교육', value: '교육' },
 ]
 
 const statusOptions = [

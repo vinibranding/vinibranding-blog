@@ -1,12 +1,11 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getSanityPost, getSanityPosts } from '@/lib/sanity';
-import { PortableText } from '@portabletext/react';
+import { getPostData, getSortedPostsData } from '@/lib/posts';
 
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  const posts = await getSanityPosts();
+  const posts = getSortedPostsData();
   return posts.map((post) => ({
     id: post.id,
   }));
@@ -15,7 +14,7 @@ export async function generateStaticParams() {
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   
-  const post = await getSanityPost(resolvedParams.id);
+  const post = await getPostData(resolvedParams.id);
   if (!post) {
     notFound();
   }
@@ -59,10 +58,8 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
       </div>
 
       <div className="prose prose-lg prose-pink mx-auto mb-16">
-        {post.content ? (
-          <PortableText value={post.content} />
-        ) : post.contentHtml ? (
-          <div dangerouslySetInnerHTML={{ __html: post.contentHtml as string }} />
+        {post.contentHtml ? (
+          <div dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
         ) : (
           <p>내용이 없습니다.</p>
         )}

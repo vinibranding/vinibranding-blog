@@ -1,14 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from 'next-sanity'
-import { apiVersion, dataset, projectId } from '@/sanity/env'
-
-const writeClient = createClient({
-  apiVersion,
-  dataset,
-  projectId,
-  useCdn: false,
-  token: process.env.SANITY_API_WRITE_TOKEN,
-})
+import { getPostData, savePostData, deletePostData } from '@/lib/posts'
 
 // GET: 단일 포스트 조회
 export async function GET(
@@ -17,26 +8,11 @@ export async function GET(
 ) {
   const { id } = await params
   try {
-    const post = await writeClient.fetch(
-      `*[_type == "post" && _id == $id][0] {
-        _id,
-        title,
-        "slug": slug.current,
-        excerpt,
-        category,
-        content,
-        status,
-        publishedAt,
-        scheduledAt,
-        author,
-        "imageUrl": mainImage.asset->url
-      }`,
-      { id }
-    )
+    const post = await getPostData(id)
     if (!post) return NextResponse.json({ error: '포스트를 찾을 수 없습니다.' }, { status: 404 })
-    return NextResponse.json({ post })
+    return NextResponse.json({ post: { ...post, _id: post.id } })
   } catch (error) {
-    console.error('Sanity fetch error:', error)
+    console.error('Local fetch error:', error)
     return NextResponse.json({ error: '데이터를 불러오는 데 실패했습니다.' }, { status: 500 })
   }
 }
@@ -51,21 +27,42 @@ export async function PATCH(
     const body = await request.json()
     const { title, slug, excerpt, category, content, status, publishedAt, scheduledAt, author } = body
 
-    const patch: any = {}
-    if (title !== undefined) patch.title = title
-    if (slug !== undefined) patch.slug = { _type: 'slug', current: slug }
-    if (excerpt !== undefined) patch.excerpt = excerpt
-    if (category !== undefined) patch.category = category
-    if (content !== undefined) patch.content = content
-    if (status !== undefined) patch.status = status
-    if (publishedAt !== undefined) patch.publishedAt = publishedAt
-    if (scheduledAt !== undefined) patch.scheduledAt = scheduledAt
-    if (author !== undefined) patch.author = author
+    const existingPost = await getPostData(id)
+    if (!existingPost) {
+      return NextResponse.json({ error: '포스트를 찾을 수 없습니다.' }, { status: 404 })
+    }
 
-    const result = await writeClient.patch(id).set(patch).commit()
-    return NextResponse.json({ post: result })
+    let contentHtml = existingPost.contentHtml
+    if (typeof content === 'string') {
+      contentHtml = content
+    } else if (Array.isArray(content)) {
+      contentHtml = content[0]?.children[0]?.text || ''
+    }
+
+    const updatedData = {
+      ...existingPost,
+      ...(title !== undefined && { title }),
+      ...(slug !== undefined && { slug }),
+      ...(excerpt !== undefined && { excerpt }),
+      ...(category !== undefined && { category }),
+      ...(content !== undefined && { contentHtml }),
+      ...(status !== undefined && { status }),
+      ...(publishedAt !== undefined && { date: publishedAt, publishedAt }),
+      ...(scheduledAt !== undefined && { scheduledAt }),
+      ...(author !== undefined && { author }),
+    }
+
+    // If slug changed, we need to delete old file and create new one
+    if (slug && slug !== id) {
+      deletePostData(id)
+      savePostData(slug, updatedData)
+    } else {
+      savePostData(id, updatedData)
+    }
+
+    return NextResponse.json({ post: { ...updatedData, _id: slug || id } })
   } catch (error) {
-    console.error('Sanity patch error:', error)
+    console.error('Local patch error:', error)
     return NextResponse.json({ error: '포스트 수정에 실패했습니다.' }, { status: 500 })
   }
 }
@@ -77,10 +74,11 @@ export async function DELETE(
 ) {
   const { id } = await params
   try {
-    await writeClient.delete(id)
+    const success = deletePostData(id)
+    if (!success) return NextResponse.json({ error: '포스트를 찾을 수 없습니다.' }, { status: 404 })
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Sanity delete error:', error)
+    console.error('Local delete error:', error)
     return NextResponse.json({ error: '포스트 삭제에 실패했습니다.' }, { status: 500 })
   }
 }

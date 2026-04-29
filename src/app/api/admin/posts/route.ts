@@ -1,34 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from 'next-sanity'
-import { apiVersion, dataset, projectId } from '@/sanity/env'
-
-const writeClient = createClient({
-  apiVersion,
-  dataset,
-  projectId,
-  useCdn: false,
-  token: process.env.SANITY_API_WRITE_TOKEN,
-})
+import { getSortedPostsData, savePostData } from '@/lib/posts'
 
 // GET: 포스트 목록
 export async function GET() {
   try {
-    const posts = await writeClient.fetch(`
-      *[_type == "post"] | order(publishedAt desc) {
-        _id,
-        title,
-        "slug": slug.current,
-        category,
-        status,
-        publishedAt,
-        scheduledAt,
-        author,
-        excerpt
-      }
-    `)
+    const posts = getSortedPostsData().map(p => ({
+      ...p,
+      _id: p.id, // For backward compatibility with the frontend
+    }))
     return NextResponse.json({ posts })
   } catch (error) {
-    console.error('Sanity fetch error:', error)
+    console.error('Local fetch error:', error)
     return NextResponse.json({ error: '데이터를 불러오는 데 실패했습니다.' }, { status: 500 })
   }
 }
@@ -39,24 +21,38 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { title, slug, excerpt, category, content, status, publishedAt, scheduledAt, author } = body
 
-    const doc: any = {
-      _type: 'post',
-      title,
-      slug: { _type: 'slug', current: slug },
-      excerpt,
-      category,
-      content,
-      status: status || 'published',
-      author: author || '비니',
+    if (!title || !slug) {
+      return NextResponse.json({ error: '제목과 슬러그는 필수입니다.' }, { status: 400 })
     }
 
-    if (publishedAt) doc.publishedAt = publishedAt
-    if (scheduledAt) doc.scheduledAt = scheduledAt
+    // TipTap content might come as an array (PortableText style) or HTML string
+    let contentHtml = ''
+    if (typeof content === 'string') {
+      contentHtml = content
+    } else if (Array.isArray(content)) {
+      // If it's the structure from PostForm.tsx (line 103-111)
+      contentHtml = content[0]?.children[0]?.text || ''
+    }
 
-    const result = await writeClient.create(doc)
-    return NextResponse.json({ post: result }, { status: 201 })
+    const postData = {
+      title,
+      slug,
+      excerpt,
+      category,
+      contentHtml,
+      status: status || 'published',
+      date: publishedAt || new Date().toISOString(),
+      publishedAt: publishedAt || new Date().toISOString(),
+      scheduledAt,
+      author: author || '비니',
+      imageUrl: '/images/default-post.jpg', // Default image if not provided
+    }
+
+    savePostData(slug, postData)
+    
+    return NextResponse.json({ post: { _id: slug, ...postData } }, { status: 201 })
   } catch (error) {
-    console.error('Sanity create error:', error)
+    console.error('Local create error:', error)
     return NextResponse.json({ error: '포스트 생성에 실패했습니다.' }, { status: 500 })
   }
 }
