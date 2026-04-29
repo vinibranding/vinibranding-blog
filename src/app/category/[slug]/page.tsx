@@ -4,10 +4,10 @@ import { getSortedPostsData } from '@/lib/posts';
 import PostCard from '@/components/PostCard';
 
 const categoryNames: Record<string, string> = {
-  branding: '브랜딩',
-  insight: '인사이트',
+  branding: '브랜딩인사이트',
   career: '커리어',
-  education: '교육',
+  interview: '인터뷰마스터',
+  contact: '콘택트',
 };
 
 export async function generateStaticParams() {
@@ -33,7 +33,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     <div className="w-full pb-20">
       <div className="mb-14 flex flex-col items-center text-center py-16 bg-white border-b border-gray-100">
         <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl font-[family-name:var(--font-playfair)]">
-          Category: <span className="text-rose-600">{categoryName}</span>
+          <span className="text-rose-600">{categoryName}</span>
         </h1>
         <p className="mt-4 text-gray-500 font-medium italic">
           {categoryName} 관련 아티클 모음

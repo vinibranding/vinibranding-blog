@@ -99,11 +99,18 @@ export async function getPostData(id: string): Promise<PostData | null> {
 }
 
 export function savePostData(id: string, data: Partial<PostData>) {
-  if (!fs.existsSync(dataDirectory)) {
-    fs.mkdirSync(dataDirectory, { recursive: true });
+  try {
+    if (!fs.existsSync(dataDirectory)) {
+      console.log('[Storage] Creating directory:', dataDirectory)
+      fs.mkdirSync(dataDirectory, { recursive: true });
+    }
+    const fullPath = path.join(dataDirectory, `${id}.json`);
+    console.log('[Storage] Writing file:', fullPath)
+    fs.writeFileSync(fullPath, JSON.stringify({ id, ...data }, null, 2));
+  } catch (error) {
+    console.error('[Storage] Save error:', error)
+    throw error
   }
-  const fullPath = path.join(dataDirectory, `${id}.json`);
-  fs.writeFileSync(fullPath, JSON.stringify({ id, ...data }, null, 2));
 }
 
 export function deletePostData(id: string) {

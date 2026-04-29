@@ -19,9 +19,11 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    console.log('[API] Creating post with body:', body)
     const { title, slug, excerpt, category, content, status, publishedAt, scheduledAt, author } = body
 
     if (!title || !slug) {
+      console.error('[API] Missing title or slug')
       return NextResponse.json({ error: '제목과 슬러그는 필수입니다.' }, { status: 400 })
     }
 
@@ -30,7 +32,6 @@ export async function POST(request: NextRequest) {
     if (typeof content === 'string') {
       contentHtml = content
     } else if (Array.isArray(content)) {
-      // If it's the structure from PostForm.tsx (line 103-111)
       contentHtml = content[0]?.children[0]?.text || ''
     }
 
@@ -45,14 +46,15 @@ export async function POST(request: NextRequest) {
       publishedAt: publishedAt || new Date().toISOString(),
       scheduledAt,
       author: author || '비니',
-      imageUrl: '/images/default-post.jpg', // Default image if not provided
+      imageUrl: '/images/default-post.jpg', 
     }
 
+    console.log('[API] Saving to local storage:', slug)
     savePostData(slug, postData)
     
     return NextResponse.json({ post: { _id: slug, ...postData } }, { status: 201 })
-  } catch (error) {
-    console.error('Local create error:', error)
-    return NextResponse.json({ error: '포스트 생성에 실패했습니다.' }, { status: 500 })
+  } catch (error: any) {
+    console.error('[API] Local create error:', error)
+    return NextResponse.json({ error: `포스트 생성에 실패했습니다: ${error.message}` }, { status: 500 })
   }
 }
