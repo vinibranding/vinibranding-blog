@@ -38,12 +38,37 @@ interface PostFormProps {
 }
 
 function slugify(text: string) {
-  return text
+  // 간단한 한글 -> 영문 변환 (초성 중심 또는 간단 표기)
+  const koreanMap: { [key: string]: string } = {
+    'ㄱ': 'g', 'ㄴ': 'n', 'ㄷ': 'd', 'ㄹ': 'r', 'ㅁ': 'm', 'ㅂ': 'b', 'ㅅ': 's', 'ㅇ': '', 'ㅈ': 'j', 'ㅊ': 'ch', 'ㅋ': 'k', 'ㅌ': 't', 'ㅍ': 'p', 'ㅎ': 'h',
+    'ㅏ': 'a', 'ㅑ': 'ya', 'ㅓ': 'eo', 'ㅕ': 'yeo', 'ㅗ': 'o', 'ㅛ': 'yo', 'ㅜ': 'u', 'ㅠ': 'yu', 'ㅡ': 'eu', 'ㅣ': 'i',
+    'ㅐ': 'ae', 'ㅒ': 'yae', 'ㅔ': 'e', 'ㅖ': 'ye', 'ㅘ': 'wa', 'ㅙ': 'wae', 'ㅚ': 'oe', 'ㅝ': 'wo', 'ㅞ': 'we', 'ㅟ': 'wi', 'ㅢ': 'ui'
+  };
+
+  // 한글 음절을 분해하여 근사한 영문으로 변환 (완벽한 로마자 표기는 아니지만 URL용으로 적합)
+  const transliterate = (str: string) => {
+    return str.split('').map(char => {
+      const code = char.charCodeAt(0) - 0xAC00;
+      if (code > -1 && code < 11172) {
+        const cho = Math.floor(code / 588);
+        const jung = Math.floor((code % 588) / 28);
+        const choList = ['g', 'gg', 'n', 'd', 'dd', 'r', 'm', 'b', 'bb', 's', 'ss', '', 'j', 'jj', 'ch', 'k', 't', 'p', 'h'];
+        const jungList = ['a', 'ae', 'ya', 'yae', 'eo', 'e', 'yeo', 'ye', 'o', 'wa', 'wae', 'oe', 'yo', 'u', 'wo', 'we', 'wi', 'yo', 'yu', 'eu', 'ui', 'i'];
+        return choList[cho] + jungList[jung];
+      }
+      return char;
+    }).join('');
+  };
+
+  const latinText = transliterate(text);
+
+  return latinText
     .toLowerCase()
-    .replace(/[^a-z0-9가-힣\s-]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '') // 한글 제거 (이미 변환됨)
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
-    .slice(0, 96)
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 96) || 'post-' + Date.now();
 }
 
 export default function PostForm({ initialData, isEdit = false }: PostFormProps) {
@@ -86,14 +111,23 @@ export default function PostForm({ initialData, isEdit = false }: PostFormProps)
     e.preventDefault()
     setError('')
     setSuccess('')
-    if (!form.title.trim()) { setError('제목을 입력해주세요.'); return }
-    if (!form.slug.trim()) { setError('슬러그를 입력해주세요.'); return }
+    
+    if (!form.title.trim()) { 
+      setError('제목을 입력해주세요.')
+      return 
+    }
+
+    let finalSlug = form.slug.trim()
+    if (!finalSlug) {
+      finalSlug = slugify(form.title)
+      setForm(f => ({ ...f, slug: finalSlug }))
+    }
 
     setSaving(true)
     try {
       const payload = {
         title: form.title,
-        slug: form.slug,
+        slug: finalSlug,
         excerpt: form.excerpt,
         category: form.category,
         status: form.status,

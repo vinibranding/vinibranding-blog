@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSortedPostsData, savePostData } from '@/lib/posts'
 
+export const dynamic = 'force-dynamic'
+
 // GET: 포스트 목록
 export async function GET() {
   try {
