@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPostData, savePostData, deletePostData } from '@/lib/posts'
 
+export const dynamic = 'force-dynamic'
+
 // GET: 단일 포스트 조회
 export async function GET(
   _request: NextRequest,

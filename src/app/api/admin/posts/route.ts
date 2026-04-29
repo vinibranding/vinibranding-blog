@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSortedPostsData, savePostData } from '@/lib/posts'
 
+// Next.js 16: force-dynamic for API routes
 export const dynamic = 'force-dynamic'
 
 // GET: 포스트 목록
