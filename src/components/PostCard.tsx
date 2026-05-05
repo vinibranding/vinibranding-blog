@@ -3,7 +3,7 @@ import Link from 'next/link';
 interface PostCardProps {
   id: string;
   title: string;
-  excerpt: string;
+  excerpt?: string;
   category: string;
   imageUrl: string;
   date: string;
@@ -30,9 +30,11 @@ export default function PostCard({ id, title, excerpt, category, imageUrl, date 
           <h3 className="line-clamp-2 text-lg font-bold leading-tight text-gray-900 group-hover:text-primary-600">
             {title}
           </h3>
-          <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-gray-600">
-            {excerpt}
-          </p>
+          {excerpt && (
+            <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-gray-600">
+              {excerpt}
+            </p>
+          )}
         </div>
         <div className="mt-6 flex items-center gap-x-2 text-sm font-medium text-primary-500">
           자세히 보기

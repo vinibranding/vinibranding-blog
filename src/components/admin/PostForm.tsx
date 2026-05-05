@@ -10,6 +10,7 @@ const categories = [
   { label: 'Branding Insight', value: 'Branding Insight' },
   { label: 'Career Design', value: 'Career Design' },
   { label: 'InterviewMaster', value: 'InterviewMaster' },
+  { label: 'Contact', value: 'Contact' },
 ]
 
 const statusOptions = [
@@ -22,7 +23,6 @@ interface PostFormData {
   _id?: string
   title: string
   slug: string
-  excerpt: string
   category: string
   status: string
   publishedAt: string
@@ -78,7 +78,6 @@ export default function PostForm({ initialData, isEdit = false }: PostFormProps)
   const [form, setForm] = useState<PostFormData>({
     title: initialData?.title || '',
     slug: initialData?.slug || '',
-    excerpt: initialData?.excerpt || '',
     category: initialData?.category || categories[0].value,
     status: initialData?.status || 'published',
     publishedAt: initialData?.publishedAt ? initialData.publishedAt.slice(0, 16) : new Date().toISOString().slice(0, 16),
@@ -118,24 +117,17 @@ export default function PostForm({ initialData, isEdit = false }: PostFormProps)
     setUploading(true)
     setError('')
     
-    const formData = new FormData()
-    formData.append('file', file)
-
     try {
-      const res = await fetch('/api/admin/upload', {
-        method: 'POST',
-        body: formData,
-      })
-      const data = await res.json()
-      if (data.url) {
-        setForm(f => ({ ...f, imageUrl: data.url }))
-        setSuccess('이미지가 업로드되었습니다.')
-      } else {
-        throw new Error(data.error || '업로드 실패')
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        const base64data = reader.result as string
+        setForm(f => ({ ...f, imageUrl: base64data }))
+        setSuccess('이미지가 준비되었습니다.')
+        setUploading(false)
       }
+      reader.readAsDataURL(file)
     } catch (err: any) {
-      setError(err.message)
-    } finally {
+      setError('이미지 변환 중 오류가 발생했습니다.')
       setUploading(false)
     }
   }
@@ -161,7 +153,6 @@ export default function PostForm({ initialData, isEdit = false }: PostFormProps)
       const payload = {
         title: form.title,
         slug: finalSlug,
-        excerpt: form.excerpt,
         category: form.category,
         status: form.status,
         scheduledAt: form.scheduledAt ? new Date(form.scheduledAt).toISOString() : null,
@@ -338,20 +329,6 @@ export default function PostForm({ initialData, isEdit = false }: PostFormProps)
             <img src={form.imageUrl} alt="Preview" className="h-full w-full object-cover" />
           </div>
         )}
-      </div>
-
-      {/* 요약 */}
-      <div>
-        <label className={labelCls} htmlFor="excerpt">요약 (Excerpt)</label>
-        <textarea
-          id="excerpt"
-          name="excerpt"
-          value={form.excerpt}
-          onChange={handleChange}
-          rows={3}
-          placeholder="포스트 카드에 표시될 짧은 요약문을 입력하세요."
-          className={`${inputCls} resize-none`}
-        />
       </div>
 
       {/* 본문 에디터 */}

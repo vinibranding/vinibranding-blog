@@ -7,6 +7,7 @@ const categoryNames: Record<string, string> = {
   branding: 'Branding Insight',
   career: 'Career Design',
   interview: 'InterviewMaster',
+  contact: 'Contact',
 };
 
 const koreanMapping: Record<string, string> = {
@@ -16,6 +17,8 @@ const koreanMapping: Record<string, string> = {
   '커리어 디자인': 'Career Design',
   '인터뷰 마스터': 'InterviewMaster',
   '인터뷰마스터': 'InterviewMaster',
+  '콘택트': 'Contact',
+  '문의': 'Contact',
 };
 
 export async function generateStaticParams() {

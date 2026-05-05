@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     console.log('[API] Creating post with body:', body)
-    const { title, slug, excerpt, category, content, status, publishedAt, scheduledAt, author } = body
+    const { title, slug, category, content, status, publishedAt, scheduledAt, author, imageUrl } = body
 
     if (!title || !slug) {
       console.error('[API] Missing title or slug')
@@ -41,7 +41,6 @@ export async function POST(request: NextRequest) {
     const postData = {
       title,
       slug,
-      excerpt,
       category,
       contentHtml,
       status: status || 'published',
@@ -49,7 +48,7 @@ export async function POST(request: NextRequest) {
       publishedAt: publishedAt || new Date().toISOString(),
       scheduledAt,
       author: author || '비니',
-      imageUrl: '/images/default-post.jpg', 
+      imageUrl: imageUrl || '/images/default-post.jpg', 
     }
 
     console.log('[API] Saving to local storage:', slug)

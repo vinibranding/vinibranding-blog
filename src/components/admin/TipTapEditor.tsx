@@ -42,22 +42,15 @@ export default function TipTapEditor({ content, onChange, placeholder = '본문�
       const file = input.files?.[0]
       if (!file || !editor) return
 
-      const formData = new FormData()
-      formData.append('file', file)
-
       try {
-        const res = await fetch('/api/admin/upload', {
-          method: 'POST',
-          body: formData,
-        })
-        const data = await res.json()
-        if (data.url) {
-          editor.chain().focus().setImage({ src: data.url }).run()
-        } else {
-          alert('업로드 실패: ' + (data.error || '알 수 없는 오류'))
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          const base64data = reader.result as string
+          editor.chain().focus().setImage({ src: base64data }).run()
         }
+        reader.readAsDataURL(file)
       } catch (err) {
-        alert('업로드 중 오류가 발생했습니다.')
+        alert('이미지 처리 중 오류가 발생했습니다.')
       }
     }
     

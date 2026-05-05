@@ -27,7 +27,7 @@ export async function PATCH(
   const { id } = await params
   try {
     const body = await request.json()
-    const { title, slug, excerpt, category, content, status, publishedAt, scheduledAt, author } = body
+    const { title, slug, category, content, status, publishedAt, scheduledAt, author, imageUrl } = body
 
     const existingPost = await getPostData(id)
     if (!existingPost) {
@@ -45,13 +45,13 @@ export async function PATCH(
       ...existingPost,
       ...(title !== undefined && { title }),
       ...(slug !== undefined && { slug }),
-      ...(excerpt !== undefined && { excerpt }),
       ...(category !== undefined && { category }),
       ...(content !== undefined && { contentHtml }),
       ...(status !== undefined && { status }),
       ...(publishedAt !== undefined && { date: publishedAt, publishedAt }),
       ...(scheduledAt !== undefined && { scheduledAt }),
       ...(author !== undefined && { author }),
+      ...(imageUrl !== undefined && { imageUrl }),
     }
 
     // If slug changed, we need to delete old file and create new one

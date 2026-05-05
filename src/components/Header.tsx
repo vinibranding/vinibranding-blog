@@ -4,7 +4,7 @@ const categories = [
   { name: 'Branding Insight', href: '/category/branding' },
   { name: 'Career Design', href: '/category/career' },
   { name: 'InterviewMaster', href: '/category/interview' },
-  { name: 'Contact', href: '/contact' },
+  { name: 'Contact', href: '/category/contact' },
 ];
 
 export default function Header() {
