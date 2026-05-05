@@ -7,7 +7,8 @@ export const dynamic = 'force-dynamic'
 // GET: 포스트 목록
 export async function GET() {
   try {
-    const posts = getSortedPostsData().map(p => ({
+    const postsData = await getSortedPostsData()
+    const posts = postsData.map(p => ({
       ...p,
       _id: p.id, // For backward compatibility with the frontend
     }))

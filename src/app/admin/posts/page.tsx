@@ -12,7 +12,6 @@ interface Post {
   publishedAt: string
   scheduledAt?: string
   author: string
-  excerpt: string
 }
 
 const statusLabel: Record<string, { label: string; cls: string }> = {
@@ -126,7 +125,6 @@ export default function AdminPostsPage() {
                     <td className="px-6 py-4">
                       <div>
                         <p className="font-semibold text-gray-900 line-clamp-1">{post.title}</p>
-                        <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{post.excerpt || '—'}</p>
                       </div>
                     </td>
                     <td className="px-4 py-4 hidden sm:table-cell">

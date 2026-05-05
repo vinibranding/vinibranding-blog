@@ -18,6 +18,7 @@ export interface PostData {
   imageCaption?: string;
   author: string;
   contentHtml?: string;
+  excerpt?: string;
   status?: string;
   slug?: string;
 }

@@ -9,7 +9,7 @@ const TipTapEditor = dynamic(() => import('@/components/admin/TipTapEditor'), { 
 const categories = [
   { label: 'Branding Insight', value: 'Branding Insight' },
   { label: 'Career Design', value: 'Career Design' },
-  { label: 'InterviewMaster', value: 'InterviewMaster' },
+  { label: 'Interview Master', value: 'Interview Master' },
   { label: 'Contact', value: 'Contact' },
 ]
 

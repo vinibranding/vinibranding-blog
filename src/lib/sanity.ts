@@ -41,7 +41,7 @@ export async function getSanityPosts(): Promise<SanityPost[]> {
   }
   
   // Fallback to local markdown posts
-  const fallback = getSortedPostsData()
+  const fallback = await getSortedPostsData()
   return fallback.map(p => ({
     ...p,
     contentHtml: undefined,

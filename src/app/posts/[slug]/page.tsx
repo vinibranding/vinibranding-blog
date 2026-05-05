@@ -5,7 +5,7 @@ import { getPostData, getSortedPostsData } from '@/lib/posts';
 export const revalidate = 60;
 
 export async function generateStaticParams() {
-  const posts = getSortedPostsData();
+  const posts = await getSortedPostsData();
   return posts.map((post) => ({
     slug: post.id,
   }));

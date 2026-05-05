@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 async function getStats() {
   try {
-    const allPosts = getSortedPostsData()
+    const allPosts = await getSortedPostsData()
     const recentPosts = allPosts.slice(0, 5).map(p => ({
       _id: p.id,
       title: p.title,

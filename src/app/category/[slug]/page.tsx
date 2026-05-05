@@ -6,7 +6,7 @@ import PostCard from '@/components/PostCard';
 const categoryNames: Record<string, string> = {
   branding: 'Branding Insight',
   career: 'Career Design',
-  interview: 'InterviewMaster',
+  interview: 'Interview Master',
   contact: 'Contact',
 };
 
@@ -15,8 +15,8 @@ const koreanMapping: Record<string, string> = {
   '브랜딩인사이트': 'Branding Insight',
   '커리어': 'Career Design',
   '커리어 디자인': 'Career Design',
-  '인터뷰 마스터': 'InterviewMaster',
-  '인터뷰마스터': 'InterviewMaster',
+  '인터뷰 마스터': 'Interview Master',
+  '인터뷰마스터': 'Interview Master',
   '콘택트': 'Contact',
   '문의': 'Contact',
 };

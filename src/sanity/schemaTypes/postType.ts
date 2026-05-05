@@ -35,7 +35,7 @@ export const postType = defineType({
         list: [
           { title: 'Branding Insight', value: 'Branding Insight' },
           { title: 'Career Design', value: 'Career Design' },
-          { title: 'InterviewMaster', value: 'InterviewMaster' },
+          { title: 'Interview Master', value: 'Interview Master' },
           { title: 'Contact', value: 'Contact' },
         ],
       },

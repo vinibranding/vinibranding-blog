@@ -54,7 +54,6 @@ export default function AdminEditPostPage() {
               _id: post._id,
               title: post.title,
               slug: post.slug,
-              excerpt: post.excerpt,
               category: post.category,
               status: post.status,
               publishedAt: post.publishedAt,

@@ -3,7 +3,7 @@ import Link from 'next/link';
 const categories = [
   { name: 'Branding Insight', href: '/category/branding' },
   { name: 'Career Design', href: '/category/career' },
-  { name: 'InterviewMaster', href: '/category/interview' },
+  { name: 'Interview Master', href: '/category/interview' },
   { name: 'Contact', href: '/category/contact' },
 ];
 
