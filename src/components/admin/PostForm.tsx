@@ -7,10 +7,9 @@ import dynamic from 'next/dynamic'
 const TipTapEditor = dynamic(() => import('@/components/admin/TipTapEditor'), { ssr: false })
 
 const categories = [
-  { label: '브랜딩인사이트', value: '브랜딩인사이트' },
-  { label: '커리어', value: '커리어' },
-  { label: '인터뷰마스터', value: '인터뷰마스터' },
-  { label: '콘택트', value: '콘택트' },
+  { label: 'Branding Insight', value: 'Branding Insight' },
+  { label: 'Career Design', value: 'Career Design' },
+  { label: 'InterviewMaster', value: 'InterviewMaster' },
 ]
 
 const statusOptions = [
@@ -30,6 +29,7 @@ interface PostFormData {
   scheduledAt: string
   author: string
   contentHtml: string
+  imageUrl: string
 }
 
 interface PostFormProps {
@@ -52,9 +52,11 @@ function slugify(text: string) {
       if (code > -1 && code < 11172) {
         const cho = Math.floor(code / 588);
         const jung = Math.floor((code % 588) / 28);
+        const jong = code % 28;
         const choList = ['g', 'gg', 'n', 'd', 'dd', 'r', 'm', 'b', 'bb', 's', 'ss', '', 'j', 'jj', 'ch', 'k', 't', 'p', 'h'];
         const jungList = ['a', 'ae', 'ya', 'yae', 'eo', 'e', 'yeo', 'ye', 'o', 'wa', 'wae', 'oe', 'yo', 'u', 'wo', 'we', 'wi', 'yo', 'yu', 'eu', 'ui', 'i'];
-        return choList[cho] + jungList[jung];
+        const jongList = ['', 'g', 'gg', 'gs', 'n', 'nj', 'nh', 'd', 'l', 'lg', 'lm', 'lb', 'ls', 'lt', 'lp', 'lh', 'm', 'b', 'bs', 's', 'ss', 'ng', 'j', 'ch', 'k', 't', 'p', 'h'];
+        return choList[cho] + jungList[jung] + jongList[jong];
       }
       return char;
     }).join('');
@@ -64,11 +66,12 @@ function slugify(text: string) {
 
   return latinText
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '') // 한글 제거 (이미 변환됨)
+    .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-+|-+$/g, '')
-    .slice(0, 96) || 'post-' + Date.now();
+    .slice(0, 96) || 'post-' + Math.random().toString(36).slice(2, 7);
+}
 }
 
 export default function PostForm({ initialData, isEdit = false }: PostFormProps) {
@@ -83,7 +86,9 @@ export default function PostForm({ initialData, isEdit = false }: PostFormProps)
     scheduledAt: initialData?.scheduledAt ? initialData.scheduledAt.slice(0, 16) : '',
     author: initialData?.author || '비니',
     contentHtml: initialData?.contentHtml || '',
+    imageUrl: initialData?.imageUrl || '/images/default-post.jpg',
   })
+  const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -105,6 +110,35 @@ export default function PostForm({ initialData, isEdit = false }: PostFormProps)
 
   const handleContent = (html: string) => {
     setForm((f) => ({ ...f, contentHtml: html }))
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setError('')
+    
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await res.json()
+      if (data.url) {
+        setForm(f => ({ ...f, imageUrl: data.url }))
+        setSuccess('이미지가 업로드되었습니다.')
+      } else {
+        throw new Error(data.error || '업로드 실패')
+      }
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setUploading(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -131,9 +165,9 @@ export default function PostForm({ initialData, isEdit = false }: PostFormProps)
         excerpt: form.excerpt,
         category: form.category,
         status: form.status,
-        publishedAt: form.publishedAt ? new Date(form.publishedAt).toISOString() : null,
         scheduledAt: form.scheduledAt ? new Date(form.scheduledAt).toISOString() : null,
         author: form.author,
+        imageUrl: form.imageUrl,
         // TipTap HTML을 Sanity portable text로 변환하기 어려우므로 HTML 블록으로 저장
         content: [
           {
@@ -277,6 +311,34 @@ export default function PostForm({ initialData, isEdit = false }: PostFormProps)
           onChange={handleChange}
           className={inputCls}
         />
+      </div>
+
+      {/* 대표 이미지 */}
+      <div>
+        <label className={labelCls} htmlFor="imageUrl">대표 이미지 URL</label>
+        <div className="flex gap-2">
+          <input
+            id="imageUrl"
+            name="imageUrl"
+            type="text"
+            value={form.imageUrl}
+            onChange={handleChange}
+            placeholder="이미지 URL을 입력하거나 파일을 업로드하세요"
+            className={inputCls}
+          />
+          <label className="shrink-0 inline-flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-xl cursor-pointer transition-colors">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            {uploading ? '...' : '파일 선택'}
+            <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
+          </label>
+        </div>
+        {form.imageUrl && (
+          <div className="mt-2 relative aspect-video w-32 overflow-hidden rounded-lg border border-gray-100">
+            <img src={form.imageUrl} alt="Preview" className="h-full w-full object-cover" />
+          </div>
+        )}
       </div>
 
       {/* 요약 */}

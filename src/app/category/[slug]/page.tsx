@@ -4,10 +4,18 @@ import { getSortedPostsData } from '@/lib/posts';
 import PostCard from '@/components/PostCard';
 
 const categoryNames: Record<string, string> = {
-  branding: '브랜딩인사이트',
-  career: '커리어',
-  interview: '인터뷰마스터',
-  contact: '콘택트',
+  branding: 'Branding Insight',
+  career: 'Career Design',
+  interview: 'InterviewMaster',
+};
+
+const koreanMapping: Record<string, string> = {
+  '브랜딩 인사이트': 'Branding Insight',
+  '브랜딩인사이트': 'Branding Insight',
+  '커리어': 'Career Design',
+  '커리어 디자인': 'Career Design',
+  '인터뷰 마스터': 'InterviewMaster',
+  '인터뷰마스터': 'InterviewMaster',
 };
 
 export async function generateStaticParams() {
@@ -25,9 +33,11 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   }
 
   const allPosts = getSortedPostsData();
-  const filteredPosts = allPosts.filter(
-    (post) => post.category === categoryName || post.category?.toLowerCase() === slug
-  );
+  const filteredPosts = allPosts.filter((post) => {
+    const postCat = post.category || '';
+    const normalizedCat = koreanMapping[postCat] || postCat;
+    return normalizedCat === categoryName || normalizedCat.toLowerCase() === slug;
+  });
 
   return (
     <div className="w-full pb-20">
