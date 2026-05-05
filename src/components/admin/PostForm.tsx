@@ -202,7 +202,7 @@ export default function PostForm({ initialData, isEdit = false }: PostFormProps)
           <span className="ml-2 text-xs font-normal text-gray-400">영문·숫자·하이픈만 사용 가능</span>
         </label>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400 shrink-0">/post/</span>
+          <span className="text-xs text-gray-400 shrink-0">/posts/</span>
           <input
             id="slug"
             name="slug"

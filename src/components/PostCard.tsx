@@ -11,7 +11,7 @@ interface PostCardProps {
 
 export default function PostCard({ id, title, excerpt, category, imageUrl, date }: PostCardProps) {
   return (
-    <Link href={`/post/${id}`} className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 transition-all hover:-translate-y-1 hover:shadow-lg hover:ring-primary-300">
+    <Link href={`/posts/${id}`} className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-200 transition-all hover:-translate-y-1 hover:shadow-lg hover:ring-primary-300">
       <div className="relative aspect-video w-full overflow-hidden bg-gray-100">
         <img
           src={imageUrl}

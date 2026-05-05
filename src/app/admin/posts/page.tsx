@@ -149,7 +149,7 @@ export default function AdminPostsPage() {
                       <div className="flex items-center justify-end gap-2">
                         {post.slug && (
                           <a
-                            href={`/post/${post.slug}`}
+                            href={`/posts/${post.slug}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors"

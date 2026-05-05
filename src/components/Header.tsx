@@ -1,10 +1,10 @@
 import Link from 'next/link';
 
 const categories = [
-  { name: '브랜딩인사이트', href: '/category/branding' },
-  { name: '커리어', href: '/category/career' },
-  { name: '인터뷰마스터', href: '/category/interview' },
-  { name: '콘택트', href: '/contact' },
+  { name: 'Branding Insight', href: '/category/branding' },
+  { name: 'Career Design', href: '/category/career' },
+  { name: 'InterviewMaster', href: '/category/interview' },
+  { name: 'Contact', href: '/contact' },
 ];
 
 export default function Header() {

@@ -7,14 +7,14 @@ export const revalidate = 60;
 export async function generateStaticParams() {
   const posts = getSortedPostsData();
   return posts.map((post) => ({
-    id: post.id,
+    slug: post.id,
   }));
 }
 
-export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   
-  const post = await getPostData(resolvedParams.id);
+  const post = await getPostData(resolvedParams.slug);
   if (!post) {
     notFound();
   }

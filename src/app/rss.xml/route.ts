@@ -52,10 +52,10 @@ export async function GET() {
       ${MOCK_POSTS.map((post) => `
         <item>
           <title><![CDATA[${post.title}]]></title>
-          <link>${baseUrl}/post/${post.id}</link>
+          <link>${baseUrl}/posts/${post.id}</link>
           <description><![CDATA[${post.excerpt}]]></description>
           <pubDate>${new Date(post.date).toUTCString()}</pubDate>
-          <guid>${baseUrl}/post/${post.id}</guid>
+          <guid>${baseUrl}/posts/${post.id}</guid>
         </item>
       `).join('')}
     </channel>
