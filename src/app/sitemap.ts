@@ -1,13 +1,13 @@
 import { MetadataRoute } from 'next';
+import { getSortedPostsData } from '@/lib/posts';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://vinibranding.com';
+  const posts = await getSortedPostsData();
   
-  // 현재 MOCK_POSTS 기준으로 게시글들의 사이트맵을 구성합니다.
-  const postIds = ['1', '2', '3', '4', '5', '6'];
-  const postEntries: MetadataRoute.Sitemap = postIds.map((id) => ({
-    url: `${baseUrl}/posts/${id}`,
-    lastModified: new Date(),
+  const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({
+    url: `${baseUrl}/posts/${post.id}`,
+    lastModified: new Date(post.date),
     changeFrequency: 'weekly',
     priority: 0.8,
   }));

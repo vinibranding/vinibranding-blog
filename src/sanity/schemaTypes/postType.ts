@@ -33,9 +33,10 @@ export const postType = defineType({
       type: 'string',
       options: {
         list: [
-          { title: 'Branding Insight', value: '브랜딩 인사이트' },
-          { title: 'Career Design', value: '커리어 디자인' },
-          { title: 'Interview Master', value: '인터뷰 마스터' },
+          { title: 'Branding Insight', value: 'Branding Insight' },
+          { title: 'Career Design', value: 'Career Design' },
+          { title: 'InterviewMaster', value: 'InterviewMaster' },
+          { title: 'Contact', value: 'Contact' },
         ],
       },
     }),
@@ -84,8 +85,20 @@ export const postType = defineType({
       initialValue: '비니',
     }),
     defineField({
+      name: 'contentHtml',
+      title: 'Content HTML (TipTap)',
+      type: 'text',
+      description: 'Raw HTML from TipTap editor',
+    }),
+    defineField({
+      name: 'imageUrl',
+      title: 'Image URL (Base64 or External)',
+      type: 'text',
+      description: 'Base64 data or external image URL',
+    }),
+    defineField({
       name: 'content',
-      title: 'Content',
+      title: 'Content (Sanity blocks)',
       type: 'array',
       of: [
         {

@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('[API] Saving to local storage:', slug)
-    savePostData(slug, postData)
+    await savePostData(slug, postData)
     
     return NextResponse.json({ post: { _id: slug, ...postData } }, { status: 201 })
   } catch (error: any) {

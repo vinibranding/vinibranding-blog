@@ -1,17 +1,18 @@
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-import { remark } from 'remark';
-import html from 'remark-html';
+import { groq, createClient } from 'next-sanity'
+import { apiVersion, dataset, projectId, useCdn } from '../sanity/env'
 
-const postsDirectory = path.resolve(process.cwd(), 'src/posts');
-const dataDirectory = path.resolve(process.cwd(), 'src/data/posts');
+const serverClient = createClient({
+  apiVersion,
+  dataset,
+  projectId,
+  useCdn,
+  token: process.env.SANITY_API_WRITE_TOKEN || 'skWHc2ZVm6XK2i8PeSSfWBDta7gqsERGy7boP2RofkULTAIXv3qqubOcoT681HjFT1DHVQ3ehzUjKXjWzpGm2g6q26qtLcZqXcb0WueEu2Vl5eFPn8PDizwrFoL2UZRJHqT56b2eKNvO2oRqe9mpGh4oQ98AuTx0qt9wyjKrBkLmFvQ3czNX'
+})
 
 export interface PostData {
   id: string;
   title: string;
   date: string;
-  excerpt: string;
   category: string;
   imageUrl: string;
   imageCaption?: string;
@@ -21,154 +22,91 @@ export interface PostData {
   slug?: string;
 }
 
-// Vercel 환경에서는 파일 시스템 쓰기가 제한적이므로 메모리 캐시를 사용합니다.
-const memoryPosts: Map<string, PostData> = new Map();
-
-export function getSortedPostsData(): PostData[] {
-  let allPostsData: PostData[] = [];
-
-  // 1. Read Markdown files (Static)
+export async function getSortedPostsData(): Promise<PostData[]> {
   try {
-    if (fs.existsSync(postsDirectory)) {
-      const fileNames = fs.readdirSync(postsDirectory);
-      const mdPosts = fileNames
-        .filter((fileName) => fileName.endsWith('.md'))
-        .map((fileName) => {
-          const id = fileName.replace(/\.md$/, '');
-          const fullPath = path.join(postsDirectory, fileName);
-          const fileContents = fs.readFileSync(fullPath, 'utf8');
-          const matterResult = matter(fileContents);
-
-          return {
-            id,
-            slug: id,
-            ...(matterResult.data as any),
-          };
-        });
-      allPostsData = [...allPostsData, ...mdPosts];
-    }
+    const posts = await serverClient.fetch(groq`*[_type == "post"] | order(publishedAt desc) {
+      "id": slug.current,
+      "slug": slug.current,
+      title,
+      category,
+      imageUrl,
+      imageCaption,
+      "date": publishedAt,
+      author,
+      status,
+      contentHtml
+    }`)
+    return posts || []
   } catch (e) {
-    console.warn('[Storage] Could not read markdown directory:', e);
+    console.error('[Sanity] Fetch error:', e)
+    return []
   }
-
-  // 2. Read JSON files (Static)
-  try {
-    if (fs.existsSync(dataDirectory)) {
-      const fileNames = fs.readdirSync(dataDirectory);
-      const jsonPosts = fileNames
-        .filter((fileName) => fileName.endsWith('.json'))
-        .map((fileName) => {
-          const id = fileName.replace(/\.json$/, '');
-          const fullPath = path.join(dataDirectory, fileName);
-          const fileContents = fs.readFileSync(fullPath, 'utf8');
-          const data = JSON.parse(fileContents);
-          return {
-            id,
-            ...data,
-          };
-        });
-      allPostsData = [...allPostsData, ...jsonPosts];
-    }
-  } catch (e) {
-    console.warn('[Storage] Could not read data directory:', e);
-  }
-
-  // 3. Add Memory Posts (Dynamic)
-  allPostsData = [...allPostsData, ...Array.from(memoryPosts.values())];
-
-  // Remove duplicates by ID (Memory posts override static ones)
-  const uniquePosts = Array.from(new Map(allPostsData.map(p => [p.id, p])).values());
-
-  // Sort by date
-  return uniquePosts.sort((a, b) => {
-    if (a.date < b.date) return 1;
-    return -1;
-  });
 }
 
 export async function getPostData(id: string): Promise<PostData | null> {
-  // Try Memory first
-  if (memoryPosts.has(id)) {
-    return memoryPosts.get(id) || null;
-  }
-
-  // Try JSON
-  const jsonPath = path.join(dataDirectory, `${id}.json`);
   try {
-    if (fs.existsSync(jsonPath)) {
-      const fileContents = fs.readFileSync(jsonPath, 'utf8');
-      return JSON.parse(fileContents);
-    }
-  } catch (e) {}
-
-  // Try Markdown
-  const mdPath = path.join(postsDirectory, `${id}.md`);
-  try {
-    if (fs.existsSync(mdPath)) {
-      const fileContents = fs.readFileSync(mdPath, 'utf8');
-      const matterResult = matter(fileContents);
-
-      const processedContent = await remark()
-        .use(html)
-        .process(matterResult.content);
-      const contentHtml = processedContent.toString();
-
-      return {
-        id,
-        contentHtml,
-        ...(matterResult.data as any),
-      };
-    }
-  } catch (e) {}
-
-  return null;
-}
-
-export function savePostData(id: string, data: Partial<PostData>) {
-  const post = { id, ...data } as PostData;
-  
-  // 1. Save to Memory (Always works)
-  memoryPosts.set(id, post);
-  console.log('[Storage] Saved to memory:', id);
-
-  // 2. Try to Save to File System (May fail on Vercel)
-  try {
-    if (!fs.existsSync(dataDirectory)) {
-      fs.mkdirSync(dataDirectory, { recursive: true });
-    }
-    const fullPath = path.join(dataDirectory, `${id}.json`);
-    fs.writeFileSync(fullPath, JSON.stringify(post, null, 2));
-    console.log('[Storage] Saved to file system:', fullPath);
-  } catch (error) {
-    // Vercel 환경에서는 이 에러가 발생할 것이므로 무시하고 진행합니다.
-    console.warn('[Storage] File system write failed (expected on Vercel):', error);
-  }
-}
-
-export function deletePostData(id: string) {
-  let deleted = false;
-
-  // 1. Delete from Memory
-  if (memoryPosts.has(id)) {
-    memoryPosts.delete(id);
-    deleted = true;
-  }
-
-  // 2. Delete from File System
-  try {
-    const jsonPath = path.join(dataDirectory, `${id}.json`);
-    if (fs.existsSync(jsonPath)) {
-      fs.unlinkSync(jsonPath);
-      deleted = true;
-    }
-    const mdPath = path.join(postsDirectory, `${id}.md`);
-    if (fs.existsSync(mdPath)) {
-      fs.unlinkSync(mdPath);
-      deleted = true;
-    }
+    const post = await serverClient.fetch(groq`*[_type == "post" && slug.current == $id][0] {
+      "id": slug.current,
+      "slug": slug.current,
+      title,
+      category,
+      imageUrl,
+      imageCaption,
+      "date": publishedAt,
+      author,
+      status,
+      contentHtml
+    }`, { id })
+    return post || null
   } catch (e) {
-    console.warn('[Storage] File system delete failed:', e);
+    console.error('[Sanity] Fetch single error:', e)
+    return null
   }
+}
 
-  return deleted;
+export async function savePostData(id: string, data: Partial<PostData>) {
+  console.log('[Sanity] Saving post:', id)
+  
+  try {
+    // 1. Check if post exists to get its _id
+    const existing = await serverClient.fetch(groq`*[_type == "post" && slug.current == $id][0]`, { id })
+    
+    const doc = {
+      _type: 'post',
+      title: data.title,
+      slug: { _type: 'slug', current: id },
+      category: data.category,
+      status: data.status || 'published',
+      publishedAt: data.date || new Date().toISOString(),
+      author: data.author || '비니',
+      contentHtml: data.contentHtml,
+      imageUrl: data.imageUrl,
+      imageCaption: data.imageCaption,
+    }
+
+    if (existing) {
+      await serverClient.patch(existing._id).set(doc).commit()
+      console.log('[Sanity] Updated:', existing._id)
+    } else {
+      await serverClient.create(doc)
+      console.log('[Sanity] Created new post')
+    }
+  } catch (error) {
+    console.error('[Sanity] Save error:', error)
+    throw error
+  }
+}
+
+export async function deletePostData(id: string) {
+  try {
+    const existing = await serverClient.fetch(groq`*[_type == "post" && slug.current == $id][0]`, { id })
+    if (existing) {
+      await serverClient.delete(existing._id)
+      return true
+    }
+    return false
+  } catch (e) {
+    console.error('[Sanity] Delete error:', e)
+    return false
+  }
 }

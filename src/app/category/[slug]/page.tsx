@@ -35,7 +35,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
     notFound();
   }
 
-  const allPosts = getSortedPostsData();
+  const allPosts = await getSortedPostsData();
   const filteredPosts = allPosts.filter((post) => {
     const postCat = post.category || '';
     const normalizedCat = koreanMapping[postCat] || postCat;

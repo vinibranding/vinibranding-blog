@@ -56,10 +56,10 @@ export async function PATCH(
 
     // If slug changed, we need to delete old file and create new one
     if (slug && slug !== id) {
-      deletePostData(id)
-      savePostData(slug, updatedData)
+      await deletePostData(id)
+      await savePostData(slug, updatedData)
     } else {
-      savePostData(id, updatedData)
+      await savePostData(id, updatedData)
     }
 
     return NextResponse.json({ post: { ...updatedData, _id: slug || id } })
@@ -76,7 +76,7 @@ export async function DELETE(
 ) {
   const { id } = await params
   try {
-    const success = deletePostData(id)
+    const success = await deletePostData(id)
     if (!success) return NextResponse.json({ error: '포스트를 찾을 수 없습니다.' }, { status: 404 })
     return NextResponse.json({ success: true })
   } catch (error) {

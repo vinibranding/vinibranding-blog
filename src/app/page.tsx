@@ -4,7 +4,7 @@ import { getSortedPostsData } from "@/lib/posts";
 export const revalidate = 60;
 
 export default async function Home() {
-  const posts = getSortedPostsData();
+  const posts = await getSortedPostsData();
 
   return (
     <div className="w-full pb-20">
