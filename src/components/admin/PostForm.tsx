@@ -72,7 +72,6 @@ function slugify(text: string) {
     .replace(/^-+|-+$/g, '')
     .slice(0, 96) || 'post-' + Math.random().toString(36).slice(2, 7);
 }
-}
 
 export default function PostForm({ initialData, isEdit = false }: PostFormProps) {
   const router = useRouter()

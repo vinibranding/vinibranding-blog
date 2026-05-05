@@ -33,11 +33,35 @@ export default function TipTapEditor({ content, onChange, placeholder = '본문�
     },
   })
 
-  const addImage = useCallback(() => {
-    const url = window.prompt('이미지 URL을 입력하세요:')
-    if (url && editor) {
-      editor.chain().focus().setImage({ src: url }).run()
+  const addImage = useCallback(async () => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    
+    input.onchange = async () => {
+      const file = input.files?.[0]
+      if (!file || !editor) return
+
+      const formData = new FormData()
+      formData.append('file', file)
+
+      try {
+        const res = await fetch('/api/admin/upload', {
+          method: 'POST',
+          body: formData,
+        })
+        const data = await res.json()
+        if (data.url) {
+          editor.chain().focus().setImage({ src: data.url }).run()
+        } else {
+          alert('업로드 실패: ' + (data.error || '알 수 없는 오류'))
+        }
+      } catch (err) {
+        alert('업로드 중 오류가 발생했습니다.')
+      }
     }
+    
+    input.click()
   }, [editor])
 
   const setLink = useCallback(() => {
