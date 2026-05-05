@@ -30,10 +30,11 @@ export async function getSanityPosts(): Promise<SanityPost[]> {
       title,
       excerpt,
       category,
-      "imageUrl": mainImage.asset->url,
+      "imageUrl": coalesce(imageUrl, mainImage.asset->url),
       imageCaption,
-      "date": publishedAt,
-      author
+      "date": coalesce(publishedAt, _createdAt),
+      author,
+      contentHtml
     }`)
     if (posts && posts.length > 0) return posts
   } catch (e) {
@@ -55,11 +56,12 @@ export async function getSanityPost(slug: string): Promise<SanityPost | null> {
       title,
       excerpt,
       category,
-      "imageUrl": mainImage.asset->url,
+      "imageUrl": coalesce(imageUrl, mainImage.asset->url),
       imageCaption,
-      "date": publishedAt,
+      "date": coalesce(publishedAt, _createdAt),
       author,
-      content
+      content,
+      contentHtml
     }`, { slug })
     if (post) return post
   } catch (e) {
